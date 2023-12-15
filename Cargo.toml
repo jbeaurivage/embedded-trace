@@ -1,0 +1,12 @@
+[package]
+name = "embedded-trace"
+version = "0.1.0"
+edition = "2021"
+authors = ["Justin Beaurivage <justin@wearableavionics.com>"]
+description = "A Future tracing utility for embedded systems"
+repository = "https://github.com/jbeaurivage/embedded-trace"
+license = "MIT OR Apache-2.0"
+keywords = ["trace", "tracing", "async", "futures", "no_std"]
+
+[dependencies]
+pin-project-lite = "0.2.13"
