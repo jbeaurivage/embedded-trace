@@ -154,6 +154,7 @@ pub trait Instrument {
 }
 
 pin_project_lite::pin_project! {
+    #[must_use = "futures do nothing unless you `.await` or poll them"]
     #[doc(hidden)]
     pub struct TraceTaskFuture<'a, F, I>
     where
@@ -197,6 +198,7 @@ where
 }
 
 pin_project_lite::pin_project! {
+    #[must_use = "futures do nothing unless you `.await` or poll them"]
     #[doc(hidden)]
     pub struct TracePollFuture<'a, F, I>
     where
@@ -234,6 +236,7 @@ where
 }
 
 pin_project_lite::pin_project! {
+    #[must_use = "futures do nothing unless you `.await` or poll them"]
     #[doc(hidden)]
     pub struct TraceTaskAndPollFuture<'a, F, T, P>
     where
