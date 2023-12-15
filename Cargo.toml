@@ -1,17 +1,18 @@
 [package]
 name = "embedded-trace"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 authors = ["Justin Beaurivage <justin@wearableavionics.com>"]
 description = "A Future tracing utility for embedded systems"
 repository = "https://github.com/jbeaurivage/embedded-trace"
+documentation = "https://docs.rs/embedded-trace"
 license = "MIT OR Apache-2.0"
 keywords = ["trace", "tracing", "async", "futures", "no_std"]
 
 [dependencies]
 pin-project-lite = "0.2.13"
 embedded-hal_1 = { package = "embedded-hal", version = "1.0.0-rc.3" }
-embedded-hal_0_2 = { package = "embedded-hal", version = "0.2.7", optional = true}
+embedded-hal_0_2 = { package = "embedded-hal", version = "0.2.7", optional = true }
 
 [features]
 
