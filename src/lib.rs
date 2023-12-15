@@ -19,39 +19,47 @@
 //!
 //! ## [`Instrument`]
 //! [`Instrument`] represents the mechanism by which [`TraceFuture`]'s methods
-//! will signal when a span is entered or exited. Implement this trait on your
-//! own types. For instance, a simple mechanism may be to set a GPIO pin HIGH
-//! when entering the span, and setting it LOW when exiting.
+//! will signal when a span is entered or exited. You can implement this trait
+//! on your own types. Some implementation for commonly used types are also
+//! provided in the [`instruments`] module.
 //!
-//! ## Example use
+//! For instance, a simple mechanism may be to set a GPIO pin HIGH
+//! when entering the span, and setting it LOW when exiting. This
+//! instrumentation is provided in the [`instruments::gpio`] module.
+//!
+//! ### Supported GPIO implementations:
+//!
+//! * Types implementing `embedded-hal` version 1.0
+//!   [`OutputPin`](embedded_hal_1::digital::OutputPin)
+//! * Types implementing `embedded-hal` version 0.2
+//!   [`OutputPin`](embedded_hal_0_2::digital::v2::OutputPin) (by enabling the
+//!   `embedded-hal_0_2` Cargo feature)
+//!
+//! ## Example use with GPIO instrumentation
 //!
 //! ```
+//! # use embedded_hal_1 as embedded_hal;
 //! use core::future::Future;
 //! // `TraceFuture` must be in scope in order to use its methods.
-//! use embedded_trace::{TraceFuture, Instrument};
+//! use embedded_trace::{TraceFuture, Gpio, GpioRef};
+//! use embedded_hal::digital::OutputPin;
 //!
-//! /// A simulated GPIO pin that prints to `stdout` instead of setting a a physical pin's electrical state
-//! struct FakeGpio;
+//! async fn trace_my_future<F, P1, P2>(future: F, task_pin: P1, poll_pin: &mut P2)
+//! where
+//!     F: Future,
+//!     P1: OutputPin,
+//!     P2: OutputPin
+//! {
+//!     // `Gpio` can be used where we can take the pin...
+//!     let mut task_instrument = Gpio::new(task_pin);
+//!     // ...or `GpioRef` when all we have is a mutable reference to a pin.
+//!     let mut poll_instrument = GpioRef::new(poll_pin);
 //!
-//! impl Instrument for FakeGpio {
-//!     fn on_enter(&mut self) {
-//!         println!("HIGH");
-//!     }
+//!     // Poll our future while tracing its execution.
+//!     future.trace_task_and_poll(&mut task_instrument, &mut poll_instrument).await;
 //!
-//!     fn on_exit(&mut self) {
-//!         println!("LOW");
-//!     }
-//! }
-//!
-//! async fn trace_a_future<F: Future>(future: F){
-//!     let mut gpio = FakeGpio;
-//!
-//!     // Trace the task execution
-//!     future.trace_task(&mut gpio).await;
-//!
-//!     // Expedted output:
-//!     // > HIGH
-//!     // > LOW
+//!     // We can reclaim the pin taken by `Gpio`
+//!     let task_pin = task_instrument.free();
 //! }
 //! ```
 //!
@@ -62,17 +70,25 @@
 //! [`on_exit`]: Instrument::on_exit
 
 #![no_std]
+#![warn(missing_docs)]
 
 use core::{future::Future, pin::Pin, task::Poll};
 
-/// Trait extending [`Future`]. Each method takes one or more [`Instrument`]
+pub mod instruments;
+pub use instruments::*;
+
+/// Extension to [`Future`] with tracing utilities.
+///
+/// Each method takes one or more [`Instrument`]
 /// parameters which dictate the mechanism used to signal when a span is entered
 /// and exited. Refer to each method's documentation for more information.
 pub trait TraceFuture: Future
 where
     Self: Sized,
 {
-    /// Trace a [`Future`]'s task execution. The underlying [`Instrument`]
+    /// Trace a [`Future`]'s task execution.
+    ///
+    /// The underlying [`Instrument`]
     /// calls [`on_enter`](Instrument::on_enter) when the future is first
     /// polled, and calls [`on_exit`](Instrument::on_exit) when it completes
     /// (returns [`Poll::Ready`]). This is useful for analyzing the total time
@@ -86,7 +102,9 @@ where
         }
     }
 
-    /// Trace a [`Future`] poll execution. The underlying [`Instrument`]
+    /// Trace a [`Future`] poll execution.
+    ///
+    /// The underlying [`Instrument`]
     /// calls [`on_enter`](Instrument::on_enter) every time prior to the
     /// underlying future being polled, and calls and calls
     /// [`on_exit`](Instrument::on_exit) when it completes (returns
@@ -101,6 +119,8 @@ where
         }
     }
 
+    /// Trace a [`Future`]'s task and poll execution.
+    ///
     /// The first underlying [`Instrument`] (`task_instrument`) acts exactly as
     /// [`trace_task`](TraceFuture::trace_task), and the second underlying
     /// [`Instrument`] (`poll_instrument`) acts exactly as
@@ -121,7 +141,10 @@ where
 
 impl<F: Future> TraceFuture for F {}
 
-/// An [`Instrument`] is used to signal when a span is entered or exited.
+/// Signal when a span is entered or exited.
+///
+/// Some implementations for commonly used types are provided in the
+/// [`instruments`] module. You may also implement this trait yourself.
 pub trait Instrument {
     /// This method is called when the span is entered.
     fn on_enter(&mut self);
@@ -131,6 +154,7 @@ pub trait Instrument {
 }
 
 pin_project_lite::pin_project! {
+    #[doc(hidden)]
     pub struct TraceTaskFuture<'a, F, I>
     where
         F: Future,
@@ -173,6 +197,7 @@ where
 }
 
 pin_project_lite::pin_project! {
+    #[doc(hidden)]
     pub struct TracePollFuture<'a, F, I>
     where
         F: Future,
@@ -209,6 +234,7 @@ where
 }
 
 pin_project_lite::pin_project! {
+    #[doc(hidden)]
     pub struct TraceTaskAndPollFuture<'a, F, T, P>
     where
         F: Future,
