@@ -1,0 +1,22 @@
+name: Rust
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: "*"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: rust-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: build
+      run: cargo build --verbose
+    - name: rustfmt
+      run: cargo +nightly fmt --check
+    - name: test
+      run: cargo test --verbose
