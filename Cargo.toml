@@ -1,6 +1,6 @@
 [package]
 name = "embedded-trace"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 authors = ["Justin Beaurivage <justin@wearableavionics.com>"]
 description = "A Future tracing utility for embedded systems"

@@ -1,5 +1,9 @@
 # Unreleased
 
+# 0.2.2
+
+* Add `#[must_use]` to `Future` types
+
 # 0.2.1
 
 * Add `docs.rs` link to `Cargo.toml`
