@@ -8,6 +8,8 @@ A `Future` tracing utility for embedded systems.
 This crate aims to provide tools to measure the execution time and debug
 `async` tasks and `Future`s for `#![no_std]` projects.
 
+![gpio_trace](assets/gpio_trace.png)
+
 # How to use this library
 
 Two main traits are defined: `TraceFuture` and `Instrument`.
@@ -62,5 +64,3 @@ where
 }
 ```
 
-
-![gpio_trace](assets/gpio_trace.png)
