@@ -10,13 +10,16 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  check:
     runs-on: rust-latest
     steps:
     - uses: actions/checkout@v3
-    - name: build
-      run: cargo build --verbose
+    - name: clippy
+      run: cargo clippy --verbose -- -Dwarnings
     - name: rustfmt
       run: cargo +nightly fmt --check
     - name: test
       run: cargo test --verbose
+    - name: Check semver
+      uses: obi1kenobi/cargo-semver-checks-action@v2
+
