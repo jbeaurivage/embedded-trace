@@ -6,7 +6,7 @@
 A `Future` tracing utility for embedded systems.
 
 This crate aims to provide tools to measure the execution time and debug
-`async` tasks and [`Future`]s for `#![no_std]` projects.
+`async` tasks and `Future`s for `#![no_std]` projects.
 
 # How to use this library
 
