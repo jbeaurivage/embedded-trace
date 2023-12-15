@@ -1,6 +1,6 @@
 # [`embedded-trace`](https://github.com/jbeaurivage/embedded-trace)
 
-[![crates.io](https://img.shields.io/crates/v/embedded-trace)](https://crates.io/crate/embedded-trace)
+[![crates.io](https://img.shields.io/crates/v/embedded-trace)](https://crates.io/crates/embedded-trace)
 [![docs.rs](https://img.shields.io/docsrs/embedded-trace)](https://docs.rs/embedded-trace)
 
 A `Future` tracing utility for embedded systems.
